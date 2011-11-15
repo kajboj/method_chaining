@@ -31,11 +31,13 @@ module MethodChaining
     CHAIN_METHODS[method_symbol][:name] = new_method_name
   end
 
-  class Wrapper
+  class BlankSlate
     instance_methods.each do |m|
       undef_method m unless m.to_s =~ /method_missing|respond_to?|^__/
     end
+  end
 
+  class Wrapper < BlankSlate
     def initialize(o, def_ret, tc)
       @o, @tc, @def_ret = o, (tc || DEFAULT_CHAIN_BREAKER), (def_ret || DEFAULT_RETURN_VALUE)
     end
@@ -54,11 +56,7 @@ module MethodChaining
     END_EVAL
   end
 
-  class Swallower
-    instance_methods.each do |m|
-      undef_method m unless m.to_s =~ /method_missing|respond_to?|^__/
-    end
-
+  class Swallower < BlankSlate
     def initialize(ret)
       @ret = ret
     end
